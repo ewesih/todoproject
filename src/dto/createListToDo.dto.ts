@@ -8,9 +8,6 @@ export class createListToDoDto {
     @IsOptional()
     content?: string;
 
-    @IsString()
-    userId: string;
-
     @IsDateString()
     @IsOptional()
     deadlineAt?: string;

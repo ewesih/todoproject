@@ -1,20 +1,22 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { createUserDto } from 'src/dto/createUser.dto';
 import { patchUserDto} from 'src/dto/patchUser.dto';
+import { PasswordService } from 'src/hash/hashpassword';
 
 @Injectable()
 export class UserService {
-    constructor(private readonly databaseService: DatabaseService) {}
+    constructor(private readonly databaseService: DatabaseService, private readonly passwordService: PasswordService) {}
 
     async createUser(dto: createUserDto) {
-        return await this.databaseService.user.create({
-            data: {
-                login: dto.login,
-                email: dto.email,
-                password: dto.password,
-            }
-        })
+            const hashedPassword = await this.passwordService.hashpassword(dto.password)
+            return await this.databaseService.user.create({
+                data: {
+                    login: dto.login,
+                    email: dto.email,
+                    password: hashedPassword,
+                }
+            })
     }
 
     async patchUser(dto: patchUserDto, id: string) {
@@ -40,7 +42,17 @@ export class UserService {
             where: {login}
         })
 
-        if(user && user.password === password) {
+        if(!user) {
+            throw new UnauthorizedException('Неверные данные')
+        }
+
+        const passwordIsMatch = await this.passwordService.comparePassword(password, user.password);
+        
+        if(!passwordIsMatch) {
+            throw new UnauthorizedException('Неверный пароль')
+        }
+
+        if(user && passwordIsMatch) {
             const {password, ...result} = user;
             return result;
         }
@@ -49,15 +61,15 @@ export class UserService {
     }
 
     async deleteUser(login: string) {
-        try {
-            return await this.databaseService.user.delete({
-                where: {login}
-            })
-        } catch(error) {
-            if(error.code === 'P2025') {
-                throw new NotFoundException('Пользователь не найден!')
-            }
-            throw error;
+        const user = await this.databaseService.user.findUnique({
+            where: {login}
+        })
+
+        if(!user) {
+            throw new NotFoundException('Пользователь не найден!')
         }
+        return await this.databaseService.user.delete({
+            where: {login},
+        })
     }
 }

@@ -8,21 +8,21 @@ import { patchListToDoDto } from 'src/dto/patchListToDo.dto';
 export class ListService {
     constructor(private readonly databaseService: DatabaseService) {}
 
-    async createList(dto: createListToDoDto) {
+    async createList(dto: createListToDoDto, userId: string) {
         return await this.databaseService.list.create({
             data: {
                 title: dto.title,
                 content: dto.content,
-                userId: dto.userId,
+                userId: userId,
                 deadlineAt: dto.deadlineAt,
                 status: 'pending',
             }
         })
     }
 
-    async patchList(dto: patchListToDoDto, id: string) {
+    async patchList(dto: patchListToDoDto, userId: string) {
         const existingList = await this.databaseService.list.findUnique({
-            where: {id}
+            where: {id: dto.id, userId: userId}
         })
         if(!existingList) {
             throw new NotFoundException('Список не найден')
@@ -31,14 +31,14 @@ export class ListService {
             Object.entries(dto).filter(([_, value]) => value !== undefined)
         )
         return await this.databaseService.list.update({
-            where: {id},
+            where: {id: dto.id},
             data: updateData,
         })
     }
 
-    async deleteList(id: string) {
+    async deleteList(id: string, userId: string) {
         const list = await this.databaseService.list.findUnique({
-            where: {id}
+            where: {id: id}
         })
 
         if(!list) {
@@ -46,7 +46,7 @@ export class ListService {
         }
 
         return await this.databaseService.list.delete({
-            where: {id}
+            where: {id: id, userId: userId}
         })
     }
 

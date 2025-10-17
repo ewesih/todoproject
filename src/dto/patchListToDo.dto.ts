@@ -1,4 +1,4 @@
-import { IsDateString, IsOptional, IsString } from "class-validator";
+import { IsDateString, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class patchListToDoDto {
     @IsString()
@@ -8,6 +8,10 @@ export class patchListToDoDto {
     @IsString()
     @IsOptional()
     content?: string;
+
+    @IsString()
+    @IsNotEmpty()
+    id: string;
 
     @IsDateString()
     @IsOptional()
