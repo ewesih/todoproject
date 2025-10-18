@@ -1,4 +1,5 @@
-import { ConflictException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {  Injectable,  NotFoundException } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import { createUserDto } from 'src/dto/createUser.dto';
 import { patchUserDto} from 'src/dto/patchUser.dto';
@@ -19,7 +20,19 @@ export class UserService {
             })
     }
 
-    async patchUser(dto: patchUserDto, id: string) {
+    async getUserByEmail(email: string): Promise<Omit<User, 'password'>> {
+        const user = await this.databaseService.user.findUnique({
+            where: {email}
+        })
+
+        if(!user) {
+            throw new NotFoundException('Пользователь не найден')
+        }
+
+        return user;
+    }
+
+    async patchUser(dto: patchUserDto, id: string){
         const existingUser = await this.databaseService.user.findUnique({
             where: {id}
         })
@@ -28,36 +41,14 @@ export class UserService {
             throw new NotFoundException('Пользователь не найден')
         }
         
+        const hashpassword = await this.passwordService.hashpassword(dto.password)
+
         return await this.databaseService.user.update({
             where: {id},
             data: {
-                login: dto.login,
-                password: dto.password,
+                password: hashpassword,
             }
         })
-    }
-
-    async validateUser(login: string, password: string) {
-        const user = await this.databaseService.user.findUnique({
-            where: {login}
-        })
-
-        if(!user) {
-            throw new UnauthorizedException('Неверные данные')
-        }
-
-        const passwordIsMatch = await this.passwordService.comparePassword(password, user.password);
-        
-        if(!passwordIsMatch) {
-            throw new UnauthorizedException('Неверный пароль')
-        }
-
-        if(user && passwordIsMatch) {
-            const {password, ...result} = user;
-            return result;
-        }
-
-        return null;
     }
 
     async deleteUser(login: string) {
