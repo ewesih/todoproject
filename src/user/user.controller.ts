@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { createUserDto } from 'src/dto/createUser.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
-import { patchUserDto } from 'src/dto/patchUser.dto';
+import { createUserDto } from '../dto/createUser.dto';
+import { AuthGuard } from '../auth/auth.guard';
+import { patchUserDto } from '../dto/patchUser.dto';
 
 @Controller('user')
 export class UserController {

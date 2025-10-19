@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from 'src/database/database.module';
+import { DatabaseModule } from '../database/database.module';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
-import { PasswordService } from 'src/hash/hashpassword';
+import { PasswordService } from '../hash/hashpassword';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 

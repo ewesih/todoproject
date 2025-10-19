@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Patch, Post, Req, Request } from '@nestjs/common';
 import { ListService } from './list.service';
-import { createListToDoDto } from 'src/dto/createListToDo.dto';
-import { DeleteListToDoDto } from 'src/dto/deleteListToDo.dto';
-import { patchListToDoDto } from 'src/dto/patchListToDo.dto';
+import { createListToDoDto } from '../dto/createListToDo.dto';
+import { DeleteListToDoDto } from '../dto/deleteListToDo.dto';
+import { patchListToDoDto } from '../dto/patchListToDo.dto';
 
 @Controller('list')
 export class ListController {

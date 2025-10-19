@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { NotFoundError } from 'rxjs';
-import { DatabaseService } from 'src/database/database.service';
-import { createListToDoDto } from 'src/dto/createListToDo.dto';
-import { patchListToDoDto } from 'src/dto/patchListToDo.dto';
+import { DatabaseService } from '../database/database.service';
+import { createListToDoDto } from '../dto/createListToDo.dto';
+import { patchListToDoDto } from '../dto/patchListToDo.dto';
 
 @Injectable()
 export class ListService {
